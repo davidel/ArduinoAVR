@@ -62,7 +62,7 @@ static void show_config()
     Serial.print(cfg.uart_speed, DEC);
     Serial.print(", CANS:");
     Serial.print(cfg.mcpctrl_speed, DEC);
-    Serial.print(", DFLR:");
+    Serial.print(", DFIL:");
     Serial.print(cfg.data_filler, HEX);
     Serial.print('\n');
 }
@@ -112,6 +112,10 @@ static void edit_config()
            (val = strtok(NULL, " \t")) != NULL) {
         if (strcmp(var, "dfil") == 0)
             cfg.data_filler = (uint16_t) strtol(val, NULL, 0);
+        else if (strcmp(var, "uas") == 0)
+            cfg.uart_speed = (uint32_t) strtol(val, NULL, 0);
+        else if (strcmp(var, "cans") == 0)
+            cfg.mcpctrl_speed = (uint16_t) strtol(val, NULL, 0);
     }
 }
 
@@ -125,7 +129,7 @@ static void execute_cmd()
         all_msgs = 0;
     else if (strcmp(cmdbuf, "st") == 0)
         show_canctrl_status();
-    else if (strcmp(cmdbuf, "cfg") == 0)
+    else if (strncmp(cmdbuf, "cfg ", 4) == 0)
         edit_config();
     else if (strcmp(cmdbuf, "scfg") == 0)
         cfg.save();
