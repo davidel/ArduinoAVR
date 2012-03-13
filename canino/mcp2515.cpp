@@ -200,7 +200,7 @@ bool mcp2515_init(uint16_t speed)
     SET(MCP2515_INT);
 
     // active SPI master interface
-    SPCR = (1 << SPE) | (1 << MSTR) | (0 << SPR1) | (1 << SPR0);
+    SPCR = OR_BITS4(SPE, MSTR, SPR1, SPR0);
     SPSR = 0;
 
     // reset MCP2515 by software reset.
@@ -234,7 +234,7 @@ bool mcp2515_init(uint16_t speed)
     spi_putc(cnf1);
 
     // CANINTE, activate interrupts
-    spi_putc((1 << RX1IE) | (1 << RX0IE));
+    spi_putc(OR_BITS2(RX0IE, RX1IE));
     SET(MCP2515_CS);
 
     // test if we could read back the value => is the chip accessible?
@@ -248,8 +248,8 @@ bool mcp2515_init(uint16_t speed)
     mcp2515_write_register(TXRTSCTRL, 0);
 
     // turn off filters => receive any message
-    mcp2515_write_register(RXB0CTRL, (1 << RXM1) | (1 << RXM0));
-    mcp2515_write_register(RXB1CTRL, (1 << RXM1) | (1 << RXM0));
+    mcp2515_write_register(RXB0CTRL, OR_BITS2(RXM0, RXM1));
+    mcp2515_write_register(RXB1CTRL, OR_BITS2(RXM0, RXM1));
 
     // reset device to normal mode
     mcp2515_write_register(CANCTRL, 0);
