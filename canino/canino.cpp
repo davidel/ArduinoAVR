@@ -116,6 +116,8 @@ static void edit_config()
             cfg.uart_speed = (uint32_t) strtol(val, NULL, 0);
         else if (strcmp(var, "cans") == 0)
             cfg.mcpctrl_speed = (uint16_t) strtol(val, NULL, 0);
+        else if (strcmp(var, "vmsg") == 0)
+            cfg.verbose_msg = (uint8_t) strtol(val, NULL, 0);
     }
 }
 
@@ -212,17 +214,26 @@ static void print_can_message()
 {
     Serial.print("ID:");
     Serial.print(message.id, HEX);
-    Serial.print(", RTR:");
-    Serial.print(message.rtr, BIN);
-    Serial.print(", SRR:");
-    Serial.print(message.srr, BIN);
-    Serial.print(", IDE:");
-    Serial.print(message.ide, BIN);
-    Serial.print(", LEN:");
-    Serial.print(message.length, DEC);
-
+    if (cfg.verbose_msg) {
+        Serial.print(", RTR:");
+        Serial.print(message.rtr, BIN);
+        Serial.print(", SRR:");
+        Serial.print(message.srr, BIN);
+        Serial.print(", IDE:");
+        Serial.print(message.ide, BIN);
+        Serial.print(", LEN:");
+        Serial.print(message.length, DEC);
+    } else {
+        Serial.print(' ');
+        if (message.rtr)
+            Serial.print('R');
+        if (message.srr)
+            Serial.print('S');
+        if (message.ide)
+            Serial.print('I');
+    }
     for (uint8_t i = 0; i < message.length; i++) {
-        Serial.print(" ");
+        Serial.print(' ');
         Serial.print(message.data[i], HEX);
     }
     Serial.print('\n');

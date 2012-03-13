@@ -31,7 +31,8 @@ config::config() :
     magic(config_magic),
     uart_speed(default_uart_speed),
     mcpctrl_speed(default_mcpctrl_speed),
-    data_filler(default_data_filler)
+    data_filler(default_data_filler),
+    verbose_msg(default_verbose_msg)
 {
 
 }
@@ -55,6 +56,9 @@ bool config::load()
     data_filler = eeprom_read_le16(address);
     address += 2;
 
+    verbose_msg = EEPROM.read(address);
+    address += 1;
+
     return true;
 }
 
@@ -76,5 +80,8 @@ void config::save()
 
     eeprom_write_le16(address, data_filler);
     address += 2;
+
+    EEPROM.write(address, verbose_msg);
+    address += 1;
 }
 

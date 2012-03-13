@@ -33,6 +33,7 @@ struct config
     static const uint32_t default_uart_speed = 115200;
     static const uint16_t default_mcpctrl_speed = 500;
     static const uint16_t default_data_filler = 0xffff;
+    static const uint8_t default_verbose_msg = 0;
 
     config();
     bool load();
@@ -42,5 +43,6 @@ struct config
     uint32_t uart_speed;
     uint16_t mcpctrl_speed;
     uint16_t data_filler;
+    uint8_t verbose_msg;
 };
 
