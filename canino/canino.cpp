@@ -62,6 +62,8 @@ static void show_config()
     Serial.print(cfg.uart_speed, DEC);
     Serial.print(", CANS:");
     Serial.print(cfg.mcpctrl_speed, DEC);
+    Serial.print(", DFLR:");
+    Serial.print(cfg.data_filler, HEX);
     Serial.print('\n');
 }
 
