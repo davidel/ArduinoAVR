@@ -119,6 +119,38 @@ static void edit_config()
     }
 }
 
+static void read_can_register()
+{
+    strtok(cmdbuf, " \t");
+
+    const char* reg = strtok(NULL, " \t");
+
+    if (reg != NULL)
+    {
+        uint8_t mreg = (uint8_t) strtol(reg, NULL, 0);
+        uint8_t rval = mcp2515_read_register(mreg);
+
+        Serial.print(rval, HEX);
+        Serial.print('\n');
+    }
+}
+
+static void write_can_register()
+{
+    strtok(cmdbuf, " \t");
+
+    const char* reg = strtok(NULL, " \t");
+    const char* val;
+
+    if (reg != NULL && (val = strtok(NULL, " \t")) != NULL)
+    {
+        uint8_t mreg = (uint8_t) strtol(reg, NULL, 0);
+        uint8_t mval = (uint8_t) strtol(val, NULL, 0);
+
+        mcp2515_write_register(mreg, mval);
+    }
+}
+
 static void execute_cmd()
 {
     if (strncmp(cmdbuf, "smsg ", 5) == 0)
@@ -131,6 +163,10 @@ static void execute_cmd()
         show_canctrl_status();
     else if (strncmp(cmdbuf, "cfg ", 4) == 0)
         edit_config();
+    else if (strncmp(cmdbuf, "rcr ", 4) == 0)
+        read_can_register();
+    else if (strncmp(cmdbuf, "wcr ", 4) == 0)
+        write_can_register();
     else if (strcmp(cmdbuf, "scfg") == 0)
         cfg.save();
     else if (strcmp(cmdbuf, "dcfg") == 0)
