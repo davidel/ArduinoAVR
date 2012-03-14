@@ -64,6 +64,8 @@ static void show_config()
     Serial.print(cfg.mcpctrl_speed, DEC);
     Serial.print(", DFIL:");
     Serial.print(cfg.data_filler, HEX);
+    Serial.print(", VMSG:");
+    Serial.print(cfg.verbose_msg, DEC);
     Serial.print('\n');
 }
 
