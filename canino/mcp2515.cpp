@@ -93,6 +93,8 @@ static bool mcp2515_select_timing(uint16_t speed, can_timing_cfg* tcfg)
     // Drop sync TQ.
     tq_x_bit--;
 
+    // Now tq_x_bit is combined Prop, PS1 and PS2. Use 1/8 of this for Prop.
+    // This is an empirical fraction, not dictated by the CAN bus spec.
     tcfg->t_prop = tq_x_bit / 8;
     if (tcfg->t_prop == 0)
         tcfg->t_prop = 1;
@@ -115,10 +117,10 @@ static bool mcp2515_select_timing(uint16_t speed, can_timing_cfg* tcfg)
 
 uint8_t spi_putc(uint8_t data)
 {
-    // put byte in send-buffer
+    // Put byte in send-buffer.
     SPDR = data;
 
-    // wait until byte was send
+    // Wait until byte was send.
     while ((SPSR & (1 << SPIF)) == 0)
         ;
 
