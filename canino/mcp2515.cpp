@@ -367,13 +367,8 @@ uint8_t mcp2515_send_message(can_message* message)
     sidl |= (uint8_t) (message->id >> 27) & 0x03;
 
     spi_putc(sidl);
-    if (message->ide) {
-        spi_putc(message->id >> 19);
-        spi_putc(message->id >> 11);
-    } else {
-        spi_putc(0xff);
-        spi_putc(0xff);
-    }
+    spi_putc(message->id >> 19);
+    spi_putc(message->id >> 11);
 
     uint8_t length = message->length & 0x0f;
 
