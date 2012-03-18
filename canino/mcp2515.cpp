@@ -201,20 +201,20 @@ bool mcp2515_init(uint16_t speed)
     SET_INPUT(MCP2515_INT);
     SET(MCP2515_INT);
 
-    // active SPI master interface
+    // Active SPI master interface.
     SPCR = OR_BITS4(SPE, MSTR, SPR1, SPR0);
     SPSR = 0;
 
-    // reset MCP2515 by software reset.
+    // Reset MCP2515 by software reset.
     // After this he is in configuration mode.
     RESET(MCP2515_CS);
     spi_putc(SPI_RESET);
     SET(MCP2515_CS);
 
-    // wait a little bit until the MCP2515 has restarted
+    // Wait a little bit until the MCP2515 has restarted.
     _delay_us(10);
 
-    // load CNF3..1 and CANINTE Registers
+    // Load CNF3..1 and CANINTE registers.
     RESET(MCP2515_CS);
     spi_putc(SPI_WRITE);
     spi_putc(CNF3);
@@ -235,25 +235,26 @@ bool mcp2515_init(uint16_t speed)
 
     spi_putc(cnf1);
 
-    // CANINTE, activate interrupts
+    // CANINTE, activate interrupts.
     spi_putc(OR_BITS2(RX0IE, RX1IE));
     SET(MCP2515_CS);
 
-    // test if we could read back the value => is the chip accessible?
+    // Test if we could read back the value => is the chip accessible?
     if (mcp2515_read_register(CNF1) != cnf1)
         return false;
 
-    // deaktivate the RXnBF Pins (High Impedance State)
+    // Deactivate the RXnBF Pins (High Impedance State).
     mcp2515_write_register(BFPCTRL, 0);
 
-    // set TXnRTS as inputs
+    // Set TXnRTS as inputs.
     mcp2515_write_register(TXRTSCTRL, 0);
 
-    // turn off filters => receive any message
-    mcp2515_write_register(RXB0CTRL, OR_BITS2(RXM0, RXM1));
+    // Turn off filters => receive any message.
+    // Enable roll-over.
+    mcp2515_write_register(RXB0CTRL, OR_BITS3(RXM0, RXM1, BUKT));
     mcp2515_write_register(RXB1CTRL, OR_BITS2(RXM0, RXM1));
 
-    // reset device to normal mode
+    // Reset device to normal mode.
     mcp2515_write_register(CANCTRL, 0);
 
     return true;
@@ -269,7 +270,7 @@ bool mcp2515_check_free_buffer()
     uint8_t status = mcp2515_read_status(SPI_READ_STATUS);
 
     if ((status & 0x54) == 0x54)
-        // all buffers used
+        // All buffers used.
         return false;
 
     return true;
@@ -282,19 +283,19 @@ uint8_t mcp2515_get_message(can_message* message)
     uint8_t t;
 
     if (bit_is_set(status,6))
-        // message in buffer 0
+        // Message in buffer 0.
         addr = SPI_READ_RX;
     else if (bit_is_set(status,7))
-        // message in buffer 1
+        // Message in buffer 1.
         addr = SPI_READ_RX | 0x04;
     else
-        // Error: no message available
+        // Error: no message available.
         return 0;
 
     RESET(MCP2515_CS);
     spi_putc(addr);
 
-    // read id
+    // Read the id.
     uint16_t sid = (uint16_t) spi_putc(0xff) << 3;
     uint8_t sidl = spi_putc(0xff);
 
@@ -310,19 +311,19 @@ uint8_t mcp2515_get_message(can_message* message)
         message->id |= ((uint32_t) eid_lo << 11) | ((uint32_t) eid_hi << 19) |
             ((uint32_t) (sidl & 0x03) << 27);
 
-    // read DLC
+    // Read the DLC.
     uint8_t rtr_dlc = spi_putc(0xff);
     uint8_t length = rtr_dlc & 0x0f;
 
     message->length = length;
     message->rtr = (message->ide != 0 && bit_is_set(rtr_dlc, 3)) ? 1: 0;
 
-    // read data
+    // Read the data.
     for (t = 0; t < length; t++)
         message->data[t] = spi_putc(0xff);
     SET(MCP2515_CS);
 
-    // clear interrupt flag
+    // Clear the interrupt flag.
     if (bit_is_set(status, 6))
         mcp2515_bit_modify(CANINTF, (1 << RX0IF), 0);
     else
@@ -376,15 +377,15 @@ uint8_t mcp2515_send_message(can_message* message)
 
     if (message->rtr)
     {
-        // a rtr-frame has a length, but contains no data
+        // A rtr-frame has a length, but contains no data.
         spi_putc((1 << RTR) | length);
     }
     else
     {
-        // set message length
+        // Set the message length.
         spi_putc(length);
 
-        // data
+        // Emit the data.
         for (t = 0; t < length; t++)
             spi_putc(message->data[t]);
     }
@@ -392,7 +393,7 @@ uint8_t mcp2515_send_message(can_message* message)
 
     _delay_us(1);
 
-    // send message
+    // Send the message.
     RESET(MCP2515_CS);
     address = (address == 0) ? 1 : address;
     spi_putc(SPI_RTS | address);

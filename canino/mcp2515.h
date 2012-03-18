@@ -60,6 +60,12 @@ struct can_message
     uint8_t data[8];
 };
 
+struct can_filter
+{
+    uint32_t mask;
+    uint32_t id;
+};
+
 uint8_t spi_putc(uint8_t data);
 void mcp2515_write_register(uint8_t adress, uint8_t data);
 uint8_t mcp2515_read_register(uint8_t adress);
