@@ -27,6 +27,8 @@
 #define OR_BITS4(b1, b2, b3, b4) (_BV(b1) | _BV(b2) | _BV(b3) | _BV(b4))
 #define OR_BITS5(b1, b2, b3, b4, b5) (_BV(b1) | _BV(b2) | _BV(b3) | _BV(b4) | _BV(b5))
 
+#define BV32(n) ((uint32_t) 1 << (n))
+
 #define RESET(x)        _XRS(x)
 #define SET(x)          _XS(x)
 #define TOGGLE(x)       _XT(x)

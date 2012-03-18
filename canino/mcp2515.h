@@ -48,7 +48,10 @@
 #pragma once
 
 #include <inttypes.h>
+#include "macros.h"
 #include "mcp2515_defs.h"
+
+#define FILTER_EID BV32(31)
 
 struct can_message
 {
@@ -63,7 +66,7 @@ struct can_message
 struct can_filter
 {
     uint32_t mask;
-    uint32_t id;
+    uint32_t filt[6];
 };
 
 enum rx_filter_mode
@@ -89,4 +92,5 @@ uint8_t mcp2515_get_message(can_message* message);
 uint8_t mcp2515_send_message(can_message* message);
 rx_filter_mode mcp2515_get_filter_mode();
 void mcp2515_set_filter_mode(rx_filter_mode mode);
+void mcp2515_read_filters(can_filter* cfilt);
 

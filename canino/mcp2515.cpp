@@ -462,3 +462,32 @@ void mcp2515_set_filter_mode(rx_filter_mode mode)
     mcp2515_write_register(RXB1CTRL, rxb1ctrl | rxm);
 }
 
+static uint32_t mcp2515_read_id(uint8_t address, bool is_eid)
+{
+    uint8_t idbuf[4];
+
+    mcp2515_read_registers(address, idbuf, sizeof(idbuf));
+
+    uint32_t id = (uint16_t) idbuf[0] << 3;
+    uint8_t sidl = idbuf[1];
+
+    id |= sidl >> 5;
+    if (is_eid || bit_is_set(sidl, 3))
+        id |= ((uint32_t) idbuf[2] << 11) | ((uint32_t) idbuf[3] << 19) |
+            ((uint32_t) (sidl & 0x03) << 27) | FILTER_EID;
+
+    return id;
+}
+
+void mcp2515_read_filters(can_filter* cfilt)
+{
+    memset(cfilt, 0, sizeof(*cfilt));
+    cfilt->mask = mcp2515_read_id(RXM0SIDH, true);
+    cfilt->filt[0] = mcp2515_read_id(RXF0SIDH, false);
+    cfilt->filt[1] = mcp2515_read_id(RXF1SIDH, false);
+    cfilt->filt[2] = mcp2515_read_id(RXF2SIDH, false);
+    cfilt->filt[3] = mcp2515_read_id(RXF3SIDH, false);
+    cfilt->filt[4] = mcp2515_read_id(RXF4SIDH, false);
+    cfilt->filt[5] = mcp2515_read_id(RXF5SIDH, false);
+}
+
