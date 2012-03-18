@@ -410,8 +410,7 @@ rx_filter_mode mcp2515_get_filter_mode()
 
     if (rxb0ctrl != rxb1ctrl)
         return RX_FILTER_INVALID;
-    switch (rxb0ctrl >> 5)
-    {
+    switch (rxb0ctrl >> RXM0) {
     case 0:
         return RX_FILTER_ENABLED;
     case 1:
@@ -423,5 +422,31 @@ rx_filter_mode mcp2515_get_filter_mode()
     }
 
     return RX_FILTER_INVALID;
+}
+
+void mcp2515_set_filter_mode(rx_filter_mode mode)
+{
+    uint8_t rxm = 0;
+
+    switch (mode) {
+    case RX_FILTER_DISABLED:
+        rxm = 0x03;
+        break;
+    case RX_FILTER_ENABLED:
+        rxm = 0x00;
+        break;
+    case RX_FILTER_ENABLED_SID:
+        rxm = 0x01;
+        break;
+    case RX_FILTER_ENABLED_EID:
+        rxm = 0x02;
+        break;
+    }
+
+    uint8_t rxb0ctrl = mcp2515_read_register(RXB0CTRL) & ~OR_BITS2(RXM0, RXM1);
+    uint8_t rxb1ctrl = mcp2515_read_register(RXB1CTRL) & ~OR_BITS2(RXM0, RXM1);
+
+    mcp2515_write_register(RXB0CTRL, rxb0ctrl | (rxm << RXM0));
+    mcp2515_write_register(RXB1CTRL, rxb1ctrl | (rxm << RXM0));
 }
 

@@ -87,4 +87,5 @@ bool mcp2515_check_free_buffer();
 uint8_t mcp2515_get_message(can_message* message);
 uint8_t mcp2515_send_message(can_message* message);
 rx_filter_mode mcp2515_get_filter_mode();
+void mcp2515_set_filter_mode(rx_filter_mode mode);
 
