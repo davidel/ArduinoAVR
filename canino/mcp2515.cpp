@@ -166,6 +166,18 @@ uint8_t mcp2515_read_register(uint8_t address)
     return data;
 }
 
+void mcp2515_read_registers(uint8_t address, uint8_t* data, uint8_t count)
+{
+    RESET(MCP2515_CS);
+
+    spi_putc(SPI_READ);
+    spi_putc(address);
+    for (uint8_t i = 0; i < count; i++)
+        data[i] = spi_putc(0xff);
+
+    SET(MCP2515_CS);
+}
+
 void mcp2515_bit_modify(uint8_t address, uint8_t mask, uint8_t data)
 {
     RESET(MCP2515_CS);
