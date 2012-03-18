@@ -396,7 +396,7 @@ uint8_t mcp2515_send_message(can_message* message)
 
     // Send the message.
     RESET(MCP2515_CS);
-    address = (address == 0) ? 1 : address;
+    address = (address == 0) ? 1: address;
     spi_putc(SPI_RTS | address);
     SET(MCP2515_CS);
 
@@ -426,27 +426,27 @@ rx_filter_mode mcp2515_get_filter_mode()
 
 void mcp2515_set_filter_mode(rx_filter_mode mode)
 {
-    uint8_t rxm = 0;
+    uint8_t rxm = OR_BITS2(RXM0, RXM1);
 
     switch (mode) {
     case RX_FILTER_DISABLED:
-        rxm = 0x03;
+        rxm = OR_BITS2(RXM0, RXM1);
         break;
     case RX_FILTER_ENABLED:
-        rxm = 0x00;
+        rxm = 0;
         break;
     case RX_FILTER_ENABLED_SID:
-        rxm = 0x01;
+        rxm = _BV(RXM0);
         break;
     case RX_FILTER_ENABLED_EID:
-        rxm = 0x02;
+        rxm = _BV(RXM1);
         break;
     }
 
     uint8_t rxb0ctrl = mcp2515_read_register(RXB0CTRL) & ~OR_BITS2(RXM0, RXM1);
     uint8_t rxb1ctrl = mcp2515_read_register(RXB1CTRL) & ~OR_BITS2(RXM0, RXM1);
 
-    mcp2515_write_register(RXB0CTRL, rxb0ctrl | (rxm << RXM0));
-    mcp2515_write_register(RXB1CTRL, rxb1ctrl | (rxm << RXM0));
+    mcp2515_write_register(RXB0CTRL, rxb0ctrl | rxm);
+    mcp2515_write_register(RXB1CTRL, rxb1ctrl | rxm);
 }
 
