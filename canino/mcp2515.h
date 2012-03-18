@@ -67,9 +67,10 @@ struct can_filter
 };
 
 uint8_t spi_putc(uint8_t data);
-void mcp2515_write_register(uint8_t adress, uint8_t data);
-uint8_t mcp2515_read_register(uint8_t adress);
-void mcp2515_bit_modify(uint8_t adress, uint8_t mask, uint8_t data);
+void mcp2515_write_register(uint8_t address, uint8_t data);
+void mcp2515_write_registers(uint8_t address, const uint8_t* data, uint8_t count);
+uint8_t mcp2515_read_register(uint8_t address);
+void mcp2515_bit_modify(uint8_t address, uint8_t mask, uint8_t data);
 uint8_t mcp2515_read_status(uint8_t type);
 bool mcp2515_init(uint16_t speed);
 bool mcp2515_check_message();

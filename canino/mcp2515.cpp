@@ -127,25 +127,37 @@ uint8_t spi_putc(uint8_t data)
     return SPDR;
 }
 
-void mcp2515_write_register(uint8_t adress, uint8_t data)
+void mcp2515_write_register(uint8_t address, uint8_t data)
 {
     RESET(MCP2515_CS);
 
     spi_putc(SPI_WRITE);
-    spi_putc(adress);
+    spi_putc(address);
     spi_putc(data);
 
     SET(MCP2515_CS);
 }
 
-uint8_t mcp2515_read_register(uint8_t adress)
+void mcp2515_write_registers(uint8_t address, const uint8_t* data, uint8_t count)
+{
+    RESET(MCP2515_CS);
+
+    spi_putc(SPI_WRITE);
+    spi_putc(address);
+    for (uint8_t i = 0; i < count; i++)
+        spi_putc(data[i]);
+
+    SET(MCP2515_CS);
+}
+
+uint8_t mcp2515_read_register(uint8_t address)
 {
     uint8_t data;
 
     RESET(MCP2515_CS);
 
     spi_putc(SPI_READ);
-    spi_putc(adress);
+    spi_putc(address);
 
     data = spi_putc(0xff);
 
@@ -154,12 +166,12 @@ uint8_t mcp2515_read_register(uint8_t adress)
     return data;
 }
 
-void mcp2515_bit_modify(uint8_t adress, uint8_t mask, uint8_t data)
+void mcp2515_bit_modify(uint8_t address, uint8_t mask, uint8_t data)
 {
     RESET(MCP2515_CS);
 
     spi_putc(SPI_BIT_MODIFY);
-    spi_putc(adress);
+    spi_putc(address);
     spi_putc(mask);
     spi_putc(data);
 
@@ -215,32 +227,21 @@ bool mcp2515_init(uint16_t speed)
     _delay_us(10);
 
     // Load CNF3..1 and CANINTE registers.
-    RESET(MCP2515_CS);
-    spi_putc(SPI_WRITE);
-    spi_putc(CNF3);
+    uint8_t conf[4];
 
     // CNF3
-    uint8_t cnf3 = (tcfg.t_ps2 - 1) & 0x07;
-
-    spi_putc(cnf3);
-
+    conf[0] = (tcfg.t_ps2 - 1) & 0x07;
     // CNF2
-    uint8_t cnf2 = (tcfg.t_prop - 1) & 0x07;
-
-    cnf2 |= ((tcfg.t_ps1 - 1) & 0x07) << 3;
-    spi_putc(cnf2 | (1 << BTLMODE));
-
+    conf[1] = (tcfg.t_prop - 1) & 0x07;
     // CNF1
-    uint8_t cnf1 = (tcfg.brp - 1) & 0x3f;
-
-    spi_putc(cnf1);
-
+    conf[2] = (tcfg.brp - 1) & 0x3f;
     // CANINTE, activate interrupts.
-    spi_putc(OR_BITS2(RX0IE, RX1IE));
-    SET(MCP2515_CS);
+    conf[3] = OR_BITS2(RX0IE, RX1IE);
+
+    mcp2515_write_registers(CNF3, conf, sizeof(conf));
 
     // Test if we could read back the value => is the chip accessible?
-    if (mcp2515_read_register(CNF1) != cnf1)
+    if (mcp2515_read_register(CNF1) != conf[2])
         return false;
 
     // Deactivate the RXnBF Pins (High Impedance State).
