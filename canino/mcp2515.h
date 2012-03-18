@@ -66,6 +66,15 @@ struct can_filter
     uint32_t id;
 };
 
+enum rx_filter_mode
+{
+    RX_FILTER_ENABLED,
+    RX_FILTER_ENABLED_SID,
+    RX_FILTER_ENABLED_EID,
+    RX_FILTER_DISABLED,
+    RX_FILTER_INVALID
+};
+
 uint8_t spi_putc(uint8_t data);
 void mcp2515_write_register(uint8_t address, uint8_t data);
 void mcp2515_write_registers(uint8_t address, const uint8_t* data, uint8_t count);
@@ -77,4 +86,5 @@ bool mcp2515_check_message();
 bool mcp2515_check_free_buffer();
 uint8_t mcp2515_get_message(can_message* message);
 uint8_t mcp2515_send_message(can_message* message);
+rx_filter_mode mcp2515_get_filter_mode();
 

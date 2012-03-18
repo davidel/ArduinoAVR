@@ -403,3 +403,25 @@ uint8_t mcp2515_send_message(can_message* message)
     return address;
 }
 
+rx_filter_mode mcp2515_get_filter_mode()
+{
+    uint8_t rxb0ctrl = mcp2515_read_register(RXB0CTRL) & OR_BITS2(RXM0, RXM1);
+    uint8_t rxb1ctrl = mcp2515_read_register(RXB1CTRL) & OR_BITS2(RXM0, RXM1);
+
+    if (rxb0ctrl != rxb1ctrl)
+        return RX_FILTER_INVALID;
+    switch (rxb0ctrl >> 5)
+    {
+    case 0:
+        return RX_FILTER_ENABLED;
+    case 1:
+        return RX_FILTER_ENABLED_SID;
+    case 2:
+        return RX_FILTER_ENABLED_EID;
+    case 3:
+        return RX_FILTER_DISABLED;
+    }
+
+    return RX_FILTER_INVALID;
+}
+
