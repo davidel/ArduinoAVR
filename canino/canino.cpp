@@ -206,7 +206,7 @@ static void show_filters()
     mcp2515_read_filters(&canf);
 
     Serial.print("MSK:");
-    Serial.print(canf.mask, HEX);
+    Serial.print(canf.mask & ~FILTER_EID, HEX);
     for (uint8_t i = 0; i < COUNT_OF(canf.filt); i++) {
         Serial.print(", ");
         Serial.print(canf.filt[i] & ~FILTER_EID, HEX);
