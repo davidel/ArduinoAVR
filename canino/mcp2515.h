@@ -78,6 +78,16 @@ enum rx_filter_mode
     RX_FILTER_INVALID
 };
 
+enum operation_mode
+{
+    OPMODE_NORMAL,
+    OPMODE_SLEEP,
+    OPMODE_LOOPBACK,
+    OPMODE_LISTEN,
+    OPMODE_CONFIG,
+    OPMODE_INVALID
+};
+
 uint8_t spi_putc(uint8_t data);
 void mcp2515_write_register(uint8_t address, uint8_t data);
 void mcp2515_write_registers(uint8_t address, const uint8_t* data, uint8_t count);
@@ -94,4 +104,5 @@ rx_filter_mode mcp2515_get_filter_mode();
 void mcp2515_set_filter_mode(rx_filter_mode mode);
 void mcp2515_read_filters(can_filter* cfilt);
 void mcp2515_write_filters(const can_filter* cfilt);
+void mcp2515_set_operation_mode(operation_mode mode);
 

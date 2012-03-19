@@ -523,3 +523,30 @@ void mcp2515_write_filters(const can_filter* cfilt)
     mcp2515_write_id(RXF5SIDH, cfilt->filt[5], true);
 }
 
+void mcp2515_set_operation_mode(operation_mode mode)
+{
+    uint8_t omode = 0;
+
+    switch (mode) {
+    case OPMODE_NORMAL:
+        break;
+    case OPMODE_SLEEP:
+        omode = _BV(REQOP0);
+        break;
+    case OPMODE_LOOPBACK:
+        omode = _BV(REQOP1);
+        break;
+    case OPMODE_LISTEN:
+        omode = OR_BITS2(REQOP0, REQOP1);
+        break;
+    case OPMODE_CONFIG:
+        omode = _BV(REQOP2);
+        break;
+    }
+
+    uint8_t cctrl = mcp2515_read_register(CANCTRL);
+
+    cctrl &= ~OR_BITS3(REQOP0, REQOP1, REQOP2);
+    mcp2515_write_register(CANCTRL, cctrl | omode);
+}
+

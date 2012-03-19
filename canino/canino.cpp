@@ -175,22 +175,13 @@ static void execute_cmd()
         cfg.save();
     else if (strcmp(cmdbuf, "dcfg") == 0)
         show_config();
-    else if (strcmp(cmdbuf, "loop") == 0) {
-        uint8_t cctrl = mcp2515_read_register(CANCTRL);
-
-        cctrl &= ~OR_BITS3(REQOP0, REQOP1, REQOP2);
-        mcp2515_write_register(CANCTRL, cctrl | _BV(REQOP1));
-    } else if (strcmp(cmdbuf, "lstn") == 0) {
-        uint8_t cctrl = mcp2515_read_register(CANCTRL);
-
-        cctrl &= ~OR_BITS3(REQOP0, REQOP1, REQOP2);
-        mcp2515_write_register(CANCTRL, cctrl | OR_BITS2(REQOP1, REQOP0));
-    } else if (strcmp(cmdbuf, "stdm") == 0) {
-        uint8_t cctrl = mcp2515_read_register(CANCTRL);
-
-        cctrl &= ~OR_BITS3(REQOP0, REQOP1, REQOP2);
-        mcp2515_write_register(CANCTRL, cctrl);
-    } else {
+    else if (strcmp(cmdbuf, "loop") == 0)
+        mcp2515_set_operation_mode(OPMODE_LOOPBACK);
+    else if (strcmp(cmdbuf, "lstn") == 0)
+        mcp2515_set_operation_mode(OPMODE_LISTEN);
+    else if (strcmp(cmdbuf, "stdm") == 0)
+        mcp2515_set_operation_mode(OPMODE_NORMAL);
+    else {
         Serial.print("cmd?: ");
         Serial.print(cmdbuf);
         Serial.print('\n');
