@@ -491,3 +491,35 @@ void mcp2515_read_filters(can_filter* cfilt)
     cfilt->filt[5] = mcp2515_read_id(RXF5SIDH, false);
 }
 
+static void mcp2515_write_id(uint8_t address, uint32_t id, bool write_eid_bit)
+{
+    uint8_t idbuf[4];
+
+    idbuf[0] = (uint8_t) ((uint16_t) id >> 3);
+    idbuf[1] = (uint8_t) id << 5;
+    if ((id & FILTER_EID) != 0) {
+        idbuf[1] |= (uint8_t) ((id >> 27) & 0x03);
+        if (write_eid_bit)
+            idbuf[1] |= _BV(3);
+        idbuf[2] = (uint8_t) (id >> 11);
+        idbuf[3] = (uint8_t) (id >> 19);
+    } else {
+        idbuf[2] = 0;
+        idbuf[3] = 0;
+    }
+
+    mcp2515_write_registers(address, idbuf, sizeof(idbuf));
+}
+
+void mcp2515_write_filters(const can_filter* cfilt)
+{
+    mcp2515_write_id(RXM0SIDH, cfilt->mask, false);
+    mcp2515_write_id(RXM1SIDH, cfilt->mask, false);
+    mcp2515_write_id(RXF0SIDH, cfilt->filt[0], true);
+    mcp2515_write_id(RXF1SIDH, cfilt->filt[1], true);
+    mcp2515_write_id(RXF2SIDH, cfilt->filt[2], true);
+    mcp2515_write_id(RXF3SIDH, cfilt->filt[3], true);
+    mcp2515_write_id(RXF4SIDH, cfilt->filt[4], true);
+    mcp2515_write_id(RXF5SIDH, cfilt->filt[5], true);
+}
+

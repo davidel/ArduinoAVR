@@ -93,4 +93,5 @@ uint8_t mcp2515_send_message(can_message* message);
 rx_filter_mode mcp2515_get_filter_mode();
 void mcp2515_set_filter_mode(rx_filter_mode mode);
 void mcp2515_read_filters(can_filter* cfilt);
+void mcp2515_write_filters(const can_filter* cfilt);
 
