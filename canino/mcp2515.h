@@ -105,4 +105,5 @@ void mcp2515_set_filter_mode(rx_filter_mode mode);
 void mcp2515_read_filters(can_filter* cfilt);
 void mcp2515_write_filters(const can_filter* cfilt);
 void mcp2515_set_operation_mode(operation_mode mode);
+operation_mode mcp2515_get_operation_mode();
 

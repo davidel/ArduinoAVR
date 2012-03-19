@@ -550,3 +550,24 @@ void mcp2515_set_operation_mode(operation_mode mode)
     mcp2515_write_register(CANCTRL, cctrl | omode);
 }
 
+operation_mode mcp2515_get_operation_mode()
+{
+    uint8_t cctrl = mcp2515_read_register(CANCTRL);
+
+    cctrl &= OR_BITS3(REQOP0, REQOP1, REQOP2);
+    switch (cctrl) {
+    case 0:
+        return OPMODE_NORMAL;
+    case _BV(REQOP0):
+        return OPMODE_SLEEP;
+    case _BV(REQOP1):
+        return OPMODE_LOOPBACK;
+    case OR_BITS2(REQOP0, REQOP1):
+        return OPMODE_LISTEN;
+    case _BV(REQOP2):
+        return OPMODE_CONFIG;
+    }
+
+    return OPMODE_INVALID;
+}
+
