@@ -31,4 +31,6 @@ uint16_t eeprom_read_le16(int address);
 uint32_t eeprom_read_le32(int address);
 void eeprom_write_le16(int address, uint16_t val);
 void eeprom_write_le32(int address, uint32_t val);
+void eeprom_write(int address, const void* data, int size);
+void eeprom_read(int address, void* data, int size);
 

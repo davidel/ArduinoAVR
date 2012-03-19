@@ -58,3 +58,15 @@ void eeprom_write_le32(int address, uint32_t val)
     EEPROM.write(address + 3, val >> 24);
 }
 
+void eeprom_write(int address, const void* data, int size)
+{
+    for (int i = 0; i < size; i++)
+        EEPROM.write(address + i, ((const uint8_t*) data)[i]);
+}
+
+void eeprom_read(int address, void* data, int size)
+{
+    for (int i = 0; i < size; i++)
+        ((uint8_t*) data)[i] = EEPROM.read(address + i);
+}
+
