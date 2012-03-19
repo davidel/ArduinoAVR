@@ -155,6 +155,66 @@ static void write_can_register()
     }
 }
 
+static void set_filters()
+{
+    strtok(cmdbuf, " \t");
+
+    const char* mtok = strtok(NULL, " \t");
+
+    if (mtok != NULL)
+    {
+        const char* val;
+        can_filter canf;
+
+        memset(&canf, 0, sizeof(canf));
+        canf.mask = strtol(mtok, NULL, 0);
+
+        for (uint8_t i = 0; i < COUNT_OF(canf.filt) &&
+                 (val = strtok(NULL, " \t")) != NULL; i++) {
+            uint32_t fval = strtol(val, NULL, 0);
+
+            if ((fval >> 11) != 0)
+                fval |= FILTER_EID;
+            canf.filt[i] = fval;
+        }
+
+        operation_mode omode = mcp2515_get_operation_mode();
+
+        mcp2515_set_operation_mode(OPMODE_CONFIG);
+        mcp2515_set_filter_mode(RX_FILTER_ENABLED);
+        mcp2515_write_filters(&canf);
+        mcp2515_set_operation_mode(omode);
+    }
+}
+
+static void clear_filters()
+{
+    operation_mode omode = mcp2515_get_operation_mode();
+
+    mcp2515_set_operation_mode(OPMODE_CONFIG);
+    mcp2515_set_filter_mode(RX_FILTER_DISABLED);
+    mcp2515_set_operation_mode(omode);
+}
+
+static void show_filters()
+{
+    operation_mode omode = mcp2515_get_operation_mode();
+    can_filter canf;
+
+    mcp2515_set_operation_mode(OPMODE_CONFIG);
+
+    mcp2515_read_filters(&canf);
+
+    Serial.print("MSK:");
+    Serial.print(canf.mask, HEX);
+    for (uint8_t i = 0; i < COUNT_OF(canf.filt); i++) {
+        Serial.print(", ");
+        Serial.print(canf.filt[i] & ~FILTER_EID, HEX);
+    }
+    Serial.print('\n');
+    mcp2515_set_operation_mode(omode);
+}
+
 static void execute_cmd()
 {
     if (strncmp(cmdbuf, "smsg ", 5) == 0)
@@ -175,6 +235,12 @@ static void execute_cmd()
         cfg.save();
     else if (strcmp(cmdbuf, "dcfg") == 0)
         show_config();
+    else if (strncmp(cmdbuf, "fset ", 5) == 0)
+        set_filters();
+    else if (strcmp(cmdbuf, "fclr") == 0)
+        clear_filters();
+    else if (strcmp(cmdbuf, "fshw") == 0)
+        show_filters();
     else if (strcmp(cmdbuf, "loop") == 0)
         mcp2515_set_operation_mode(OPMODE_LOOPBACK);
     else if (strcmp(cmdbuf, "lstn") == 0)

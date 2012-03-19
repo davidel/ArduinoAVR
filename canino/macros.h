@@ -22,6 +22,8 @@
 
 #pragma once
 
+#define COUNT_OF(a) (sizeof(a) / sizeof(a[0]))
+
 #define OR_BITS2(b1, b2) (_BV(b1) | _BV(b2))
 #define OR_BITS3(b1, b2, b3) (_BV(b1) | _BV(b2) | _BV(b3))
 #define OR_BITS4(b1, b2, b3, b4) (_BV(b1) | _BV(b2) | _BV(b3) | _BV(b4))
