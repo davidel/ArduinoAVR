@@ -240,10 +240,13 @@ static void list_files(File& dir, uint8_t depth)
 
 static void list_files()
 {
-    File root = SD.open("/");
+    if (!sdcard_init_failed) {
+        File root = SD.open("/");
 
-    list_files(root, 0);
-    root.close();
+        list_files(root, 0);
+        root.close();
+    } else
+        Serial.print("No SD Card!\n");
 }
 
 static void execute_cmd()
@@ -347,9 +350,6 @@ void loop()
 {
     if (can_init_failed) {
         Serial.print("CAN Init Failed!\n");
-        delay(1000);
-    } else if (sdcard_init_failed) {
-        Serial.print("SD Init Failed!\n");
         delay(1000);
     } else {
         if (mcp2515_check_message()) {
