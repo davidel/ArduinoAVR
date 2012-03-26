@@ -6,7 +6,7 @@ AVRDUDE = /home/tools/arduino/arduino-1.0/hardware/tools/avrdude
 AVRDUDE_CONF = /home/tools/arduino/arduino-1.0/hardware/tools/avrdude.conf
 
 TARGET       = canino
-ARDUINO_LIBS = SPI EEPROM
+ARDUINO_LIBS = SPI EEPROM SD SD/utility
 
 BOARD_TAG    = uno
 ARDUINO_PORT = /dev/ttyACM0

@@ -21,6 +21,7 @@
  */
 
 #include <Arduino.h>
+#include <SD.h>
 #include <string.h>
 #include "macros.h"
 #include "can_ctrl_pins.h"
@@ -31,6 +32,7 @@
 
 static config cfg;
 static uint8_t can_init_failed;
+static uint8_t sdcard_init_failed;
 static uint8_t all_msgs;
 static can_message message;
 static uint8_t cmdbuf_count;
@@ -215,6 +217,35 @@ static void show_filters()
     mcp2515_set_operation_mode(omode);
 }
 
+static void list_files(File& dir, uint8_t depth)
+{
+    for (;;) {
+        File entry = dir.openNextFile();
+
+        if (!entry)
+            break;
+        for (uint8_t i = 0; i < depth; i++)
+            Serial.print('\t');
+        Serial.print(entry.name());
+        if (entry.isDirectory()) {
+            Serial.println('/');
+            list_files(entry, depth + 1);
+        } else {
+            Serial.print('\t');
+            Serial.println(entry.size(), DEC);
+        }
+        entry.close();
+    }
+}
+
+static void list_files()
+{
+    File root = SD.open("/");
+
+    list_files(root, 0);
+    root.close();
+}
+
 static void execute_cmd()
 {
     if (strncmp(cmdbuf, "smsg ", 5) == 0)
@@ -247,6 +278,8 @@ static void execute_cmd()
         mcp2515_set_operation_mode(OPMODE_LISTEN);
     else if (strcmp(cmdbuf, "stdm") == 0)
         mcp2515_set_operation_mode(OPMODE_NORMAL);
+    else if (strcmp(cmdbuf, "ls") == 0)
+        list_files();
     else {
         Serial.print("cmd?: ");
         Serial.print(cmdbuf);
@@ -304,12 +337,19 @@ void setup()
     Serial.begin(cfg.uart_speed);
     if (!mcp2515_init(cfg.mcpctrl_speed))
         can_init_failed = 1;
+
+    pinMode(SDCARD_CS_PIN, OUTPUT);
+    if (!SD.begin(SDCARD_CS_PIN))
+        sdcard_init_failed = 1;
 }
 
 void loop()
 {
     if (can_init_failed) {
         Serial.print("CAN Init Failed!\n");
+        delay(1000);
+    } else if (sdcard_init_failed) {
+        Serial.print("SD Init Failed!\n");
         delay(1000);
     } else {
         if (mcp2515_check_message()) {
