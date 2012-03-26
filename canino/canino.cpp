@@ -32,7 +32,6 @@
 
 static config cfg;
 static uint8_t can_init_failed;
-static uint8_t sdcard_init_failed;
 static uint8_t all_msgs;
 static can_message message;
 static uint8_t cmdbuf_count;
@@ -240,13 +239,10 @@ static void list_files(File& dir, uint8_t depth)
 
 static void list_files()
 {
-    if (!sdcard_init_failed) {
-        File root = SD.open("/");
+    File root = SD.open("/");
 
-        list_files(root, 0);
-        root.close();
-    } else
-        Serial.print("No SD Card!\n");
+    list_files(root, 0);
+    root.close();
 }
 
 static void execute_cmd()
@@ -342,8 +338,7 @@ void setup()
         can_init_failed = 1;
 
     pinMode(SDCARD_CS_PIN, OUTPUT);
-    if (!SD.begin(SDCARD_CS_PIN))
-        sdcard_init_failed = 1;
+    SD.begin(SDCARD_CS_PIN);
 }
 
 void loop()
