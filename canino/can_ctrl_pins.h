@@ -33,6 +33,8 @@
 #define LED2_HIGH           B,7
 #define LED2_LOW            B,7
 
+#define SDCARD_CS           H,6
+
 #else
 
 #define P_MOSI  B,3
@@ -45,7 +47,8 @@
 #define LED2_LOW            B,0
 
 #define SDCARD_CS           B,1
-#define SDCARD_CS_PIN       9
 
 #endif
+
+#define SDCARD_CS_PIN       9
 
