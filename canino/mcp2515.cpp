@@ -226,7 +226,7 @@ bool mcp2515_init(uint16_t speed)
     SET(MCP2515_INT);
 
     // Active SPI master interface.
-    SPCR = OR_BITS4(SPE, MSTR, SPR1, SPR0);
+    SPCR = OR_BITS3(SPE, MSTR, SPR0);
     SPSR = 0;
 
     // Reset MCP2515 by software reset.
@@ -250,7 +250,7 @@ bool mcp2515_init(uint16_t speed)
     // CANINTE, activate interrupts.
     conf[3] = OR_BITS2(RX0IE, RX1IE);
 
-    mcp2515_write_registers(CNF3, conf, sizeof(conf));
+    mcp2515_write_registers(CNF3, conf, COUNT_OF(conf));
 
     // Test if we could read back the value => is the chip accessible?
     if (mcp2515_read_register(CNF1) != conf[2])
@@ -508,7 +508,7 @@ static void mcp2515_write_id(uint8_t address, uint32_t id, bool write_eid_bit)
         idbuf[3] = 0;
     }
 
-    mcp2515_write_registers(address, idbuf, sizeof(idbuf));
+    mcp2515_write_registers(address, idbuf, COUNT_OF(idbuf));
 }
 
 void mcp2515_write_filters(const can_filter* cfilt)
