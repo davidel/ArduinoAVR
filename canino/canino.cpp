@@ -36,10 +36,15 @@ static uint8_t all_msgs;
 static can_message message;
 static uint8_t cmdbuf_count;
 static char cmdbuf[80];
+static uint8_t kwp_mode = 1;
+static uint8_t kwp_tgt_addr = 0xf1;
 
-static bool is_tester_reponse(uint32_t id)
+static bool filter_message()
 {
-    return id >= 0x7e8 && id <= 0x7ef;
+    if (!kwp_mode)
+        return message.id >= 0x7e8 && message.id <= 0x7ef;
+
+    return message.data[0] == kwp_tgt_addr;
 }
 
 static void show_canctrl_status()
@@ -349,7 +354,7 @@ void loop()
     } else {
         if (mcp2515_check_message()) {
             if (mcp2515_get_message(&message)) {
-                if (all_msgs != 0 || is_tester_reponse(message.id))
+                if (all_msgs != 0 || filter_message())
                     print_can_message();
             }
         }
