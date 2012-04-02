@@ -110,6 +110,20 @@ static void send_msg()
     mcp2515_send_message(&message);
 }
 
+static void set_kwp()
+{
+    strtok(cmdbuf, " \t");
+
+    const char* arg = strtok(NULL, " \t");
+
+    if (arg != NULL) {
+        kwp_mode = (uint8_t) strtol(arg, NULL, 0);
+
+        if ((arg = strtok(NULL, " \t")) != NULL)
+            kwp_tgt_addr = (uint8_t) strtol(arg, NULL, 0);
+    }
+}
+
 static void edit_config()
 {
     const char* var;
@@ -135,8 +149,7 @@ static void read_can_register()
 
     const char* reg = strtok(NULL, " \t");
 
-    if (reg != NULL)
-    {
+    if (reg != NULL) {
         uint8_t mreg = (uint8_t) strtol(reg, NULL, 0);
         uint8_t rval = mcp2515_read_register(mreg);
 
@@ -152,8 +165,7 @@ static void write_can_register()
     const char* reg = strtok(NULL, " \t");
     const char* val;
 
-    if (reg != NULL && (val = strtok(NULL, " \t")) != NULL)
-    {
+    if (reg != NULL && (val = strtok(NULL, " \t")) != NULL) {
         uint8_t mreg = (uint8_t) strtol(reg, NULL, 0);
         uint8_t mval = (uint8_t) strtol(val, NULL, 0);
 
@@ -167,8 +179,7 @@ static void set_filters()
 
     const char* mtok = strtok(NULL, " \t");
 
-    if (mtok != NULL)
-    {
+    if (mtok != NULL) {
         const char* val;
         can_filter canf;
 
@@ -260,6 +271,8 @@ static void execute_cmd()
         all_msgs = 0;
     else if (strcmp(cmdbuf, "st") == 0)
         show_canctrl_status();
+    else if (strncmp(cmdbuf, "kwp ", 4) == 0)
+        set_kwp();
     else if (strncmp(cmdbuf, "cfg ", 4) == 0)
         edit_config();
     else if (strncmp(cmdbuf, "rcr ", 4) == 0)
