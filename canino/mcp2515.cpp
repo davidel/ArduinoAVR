@@ -72,6 +72,14 @@ struct can_timing_cfg
 // Max Time Quanta per bit: 1 Sync, Max 8 Prop, Max 8 PS1, Max 8 PS2
 #define CAN_MAX_TQ_X_BIT 25
 
+/*
+ * Bit  Function
+ *  2   TXB0CNTRL.TXREQ
+ *  4   TXB1CNTRL.TXREQ
+ *  6   TXB2CNTRL.TXREQ
+ */
+#define TXCNTRL_TXREQ_MASK OR_BITS3(2, 4, 6)
+
 static bool mcp2515_select_timing(uint16_t speed, can_timing_cfg* tcfg)
 {
     uint32_t can_cpu_freq = CAN_BASE_BRP1_FREQ;
@@ -282,7 +290,7 @@ bool mcp2515_check_free_buffer()
 {
     uint8_t status = mcp2515_read_status(SPI_READ_STATUS);
 
-    if ((status & 0x54) == 0x54)
+    if ((status & TXCNTRL_TXREQ_MASK) == TXCNTRL_TXREQ_MASK)
         // All buffers used.
         return false;
 
